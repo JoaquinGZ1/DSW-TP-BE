@@ -85,11 +85,8 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    console.log('📝 Datos recibidos para crear entrada:', req.body.sanitizedInput);
-    
     const { usuario, evento, tipoEntrada, ...rest } = req.body.sanitizedInput;
 
-    console.log('🔍 Verificando entrada existente...');
     // Verifica si ya existe una entrada para ese usuario y evento
     const entradaExistente = await em.findOne(Entrada, {
       usuario,
@@ -97,18 +94,14 @@ async function add(req: Request, res: Response) {
     });
 
     if (entradaExistente) {
-      console.log('⚠️ Entrada ya existe para este usuario y evento');
       return res.status(409).json({
         message: 'El usuario ya tiene una entrada para este evento',
       });
     }
 
-    console.log('🎫 Cargando evento...');
     // 🟡 Carga el evento para obtener su fecha
     const eventoEntity = await em.findOneOrFail(Evento, { id: evento });
-    console.log('✅ Evento encontrado:', eventoEntity.name);
 
-    console.log('🔨 Creando entrada...');
     const entrada = em.create(Entrada, {
       ...rest,
       date: eventoEntity.date, // ✅ Asignar fecha del evento
@@ -118,18 +111,11 @@ async function add(req: Request, res: Response) {
       tipoEntrada: em.getReference(TipoEntrada, tipoEntrada),
     });
 
-    console.log('💾 Persistiendo entrada...');
-    await em.persistAndFlush(entrada);
-    
-    console.log('✅ Entrada creada exitosamente:', entrada.id);
+    await em.flush();
     res.status(201).json({ message: 'Entrada creada', data: entrada });
   } catch (error: any) {
-    console.error('❌ Error al crear entrada:', error);
-    console.error('❌ Stack:', error.stack);
-    res.status(500).json({ 
-      message: error.message,
-      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    console.error('Error al crear entrada:', error);
+    res.status(500).json({ message: error.message });
   }
 }
 

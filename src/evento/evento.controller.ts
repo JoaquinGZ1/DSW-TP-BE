@@ -99,10 +99,21 @@ async function add(req: Request, res: Response) {
 
     // Verifica si se subió un archivo de imagen
     if (req.file) {
-      console.log('✅ Procesando archivo:', req.file.path);
-      // Normaliza la ruta para sistemas Windows y elimina 'dist/' del inicio
-      eventoData.photo = req.file.path.replace(/\\/g, '/').replace('dist/', '');
-      console.log('✅ Ruta normalizada:', eventoData.photo);
+      console.log('✅ Procesando archivo:', req.file);
+      
+      // En producción, Cloudinary devuelve la URL en req.file.path
+      // En desarrollo, Multer devuelve la ruta local
+      if (process.env.NODE_ENV === 'production') {
+        // Cloudinary: usar la URL directa
+        eventoData.photo = req.file.path; // URL de Cloudinary
+        console.log('☁️ Foto guardada en Cloudinary:', eventoData.photo);
+      } else {
+        // Local: normalizar la ruta
+        eventoData.photo = req.file.path.replace(/\\/g, '/').replace('dist/', '');
+        console.log('💾 Foto guardada localmente:', eventoData.photo);
+      }
+    } else {
+      console.log('ℹ️ No se subió archivo de imagen');
     }
 
 

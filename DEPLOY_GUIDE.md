@@ -27,32 +27,6 @@ Esta guía te llevará paso a paso para desplegar tu aplicación completa en ser
 
 5. **Importante**: En la pestaña "Settings" busca "Public Networking" y actívalo para obtener una URL pública
 
-### Opción B: Aiven.io
-
-1. Ve a [aiven.io](https://aiven.io)
-2. Crea cuenta gratuita
-3. Create Service → MySQL
-4. Selecciona el plan gratuito
-5. Anota las credenciales de conexión
-
----
-
-## 🔧 PASO 2: Deploy del Backend
-
-### Opción A: Railway (Recomendado)
-
-1. **En Railway:**
-
-   - New Project → "Deploy from GitHub repo"
-   - Conecta tu cuenta de GitHub
-   - Selecciona el repositorio `DSW-TP`
-   - Railway detectará automáticamente que es Node.js
-
-2. **Configurar Variables de Entorno:**
-
-   - Ve a la pestaña "Variables"
-   - Agrega las siguientes variables:
-
    ```
    NODE_ENV=production
    DB_HOST=<tu-mysql-host-de-railway>
@@ -65,12 +39,12 @@ Esta guía te llevará paso a paso para desplegar tu aplicación completa en ser
    PORT=4000
    ```
 
-3. **Configurar Build:**
+6. **Configurar Build:**
 
    - En Settings → Build Command: `pnpm install && pnpm run build`
    - Start Command: `node dist/app.js`
 
-4. **Generar URL Pública:**
+7. **Generar URL Pública:**
    - En Settings → Generate Domain
    - Anota la URL (ej: `https://tu-app.railway.app`)
 

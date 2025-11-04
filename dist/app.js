@@ -22,10 +22,25 @@ app.use('/uploads', (req, res, next) => {
     console.log(`Intentando servir: ${path.join(__dirname, 'uploads', req.path)}`);
     next();
 }, express.static(path.join(__dirname, 'uploads')));
+// Configurar CORS para desarrollo y producción
+const allowedOrigins = [
+    'http://localhost:3000',
+    process.env.FRONTEND_URL || '', // URL del frontend en producción
+].filter(Boolean); // Filtrar valores vacíos
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: (origin, callback) => {
+        // Permitir requests sin origin (como mobile apps o curl)
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'], // Asegurarse de que las cabeceras correctas están permitidas
+    allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 // Creación del contexto para la base de datos
@@ -43,9 +58,16 @@ app.use('/api/categorias', categoriaRouter);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' });
 });
-await syncSchema(); // Esta línea no debe usarse en producción
+// Solo sincronizar schema en desarrollo
+if (process.env.NODE_ENV !== 'production') {
+    await syncSchema();
+    console.log('Schema sincronizado (solo en desarrollo)');
+}
+// Puerto dinámico para servicios de hosting
+const PORT = process.env.PORT || 4000;
 // Arrancar el servidor
-app.listen(4000, () => {
-    console.log('Server running on http://localhost:4000/');
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 //# sourceMappingURL=app.js.map

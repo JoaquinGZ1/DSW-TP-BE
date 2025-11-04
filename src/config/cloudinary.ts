@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { Request } from 'express';
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -11,7 +12,7 @@ cloudinary.config({
 // Configurar storage de Cloudinary para Multer
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async (req: Request, file: Express.Multer.File) => {
     return {
       folder: 'eventos', // Carpeta en Cloudinary donde se guardarán las imágenes
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],

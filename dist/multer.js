@@ -1,26 +1,36 @@
 // src/middlewares/multer.ts
 import multer from 'multer';
-// Configuración del almacenamiento de multer
-const storage = multer.diskStorage({
+import fs from 'fs';
+import { cloudinaryStorage } from './config/cloudinary.js';
+const isProduction = process.env.NODE_ENV === 'production';
+// Configuración del almacenamiento local (desarrollo)
+const localStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'dist/uploads/'); // Ruta donde se almacenan las imágenes
+        const uploadDir = 'dist/uploads/';
+        // Crear directorio si no existe
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        cb(null, `${uniqueSuffix}-${file.originalname}`); // Nombre único para la imagen
+        cb(null, `${uniqueSuffix}-${file.originalname}`);
     },
 });
+// Usar Cloudinary en producción, almacenamiento local en desarrollo
+const storage = isProduction ? cloudinaryStorage : localStorage;
+console.log(`📦 Storage configurado: ${isProduction ? 'Cloudinary (Producción)' : 'Local (Desarrollo)'}`);
 // Filtro para aceptar solo imágenes JPG, JPEG, y PNG
 const fileFilter = (req, file, cb) => {
-    // Verifica si el tipo MIME corresponde a las imágenes permitidas
-    if (file.mimetype === 'image/jpeg' || // JPEG y JPG
-        file.mimetype === 'image/png' || // PNG
-        file.mimetype.startsWith('image/') // Cualquier otro tipo de imagen
-    ) {
-        cb(null, true); // Permitir el archivo
+    if (file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/webp' ||
+        file.mimetype.startsWith('image/')) {
+        cb(null, true);
     }
     else {
-        cb(new Error('Solo se permiten imágenes en formato JPG, JPEG o PNG.'), false); // Rechazar si no es permitido
+        cb(new Error('Solo se permiten imágenes en formato JPG, JPEG, PNG o WEBP.'), false);
     }
 };
 // Configuración de multer

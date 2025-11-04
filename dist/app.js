@@ -25,23 +25,37 @@ app.use('/uploads', (req, res, next) => {
 // Configurar CORS para desarrollo y producción
 const allowedOrigins = [
     'http://localhost:3000',
-    process.env.FRONTEND_URL || '', // URL del frontend en producción
+    'http://localhost:4000',
+    process.env.FRONTEND_URL,
+    'https://dsw-tp-fe.vercel.app', // Vercel URL directa como fallback
 ].filter(Boolean); // Filtrar valores vacíos
+console.log('🔒 CORS Configuration:');
+console.log('   Allowed Origins:', allowedOrigins);
+console.log('   Environment:', process.env.NODE_ENV);
+console.log('   FRONTEND_URL:', process.env.FRONTEND_URL);
 app.use(cors({
     origin: (origin, callback) => {
+        console.log('📨 Request from origin:', origin);
         // Permitir requests sin origin (como mobile apps o curl)
-        if (!origin)
+        if (!origin) {
+            console.log('✅ Allowing request without origin');
             return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+        }
+        if (allowedOrigins.includes(origin)) {
+            console.log('✅ Origin allowed:', origin);
             callback(null, true);
         }
         else {
-            callback(new Error('Not allowed by CORS'));
+            console.log('❌ Origin blocked:', origin);
+            console.log('   Allowed origins:', allowedOrigins);
+            callback(new Error(`CORS: Origin ${origin} not allowed`));
         }
     },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
 // Creación del contexto para la base de datos
 app.use((req, res, next) => {

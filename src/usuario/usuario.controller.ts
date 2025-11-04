@@ -331,6 +331,55 @@ async function getCategoriasSeguidas(req: Request, res: Response) {
   }
 }
 
+async function deleteAccount(req: Request, res: Response) {
+  try {
+    const usuarioId = Number.parseInt(req.params.id);
+    const { confirmacion } = req.body;
+
+    // Verificar que se recibió la confirmación
+    if (!confirmacion) {
+      return res.status(400).json({ 
+        message: 'Debe proporcionar la confirmación para eliminar la cuenta' 
+      });
+    }
+
+    // Verificar que la confirmación sea exactamente "ELIMINAR"
+    if (confirmacion !== 'ELIMINAR') {
+      return res.status(400).json({ 
+        message: 'La confirmación debe ser exactamente "ELIMINAR" para proceder con la eliminación de la cuenta' 
+      });
+    }
+
+    // Buscar el usuario con sus entradas para asegurar la eliminación en cascada
+    const usuario = await em.findOneOrFail(
+      Usuario,
+      { id: usuarioId },
+      { populate: ['entradas'] }
+    );
+
+    console.log(`🗑️ Eliminando cuenta del usuario "${usuario.nickname}" con ${usuario.entradas.length} entradas asociadas`);
+
+    // Eliminar el usuario (las entradas se eliminarán automáticamente por la cascada)
+    await em.removeAndFlush(usuario);
+
+    // Enviar respuesta exitosa
+    res.status(200).json({ 
+      message: 'Cuenta eliminada exitosamente junto con todas las entradas asociadas.',
+      deletedEntradas: usuario.entradas.length,
+      usuario: {
+        nickname: usuario.nickname,
+        mail: usuario.mail
+      }
+    });
+  } catch (error: any) {
+    console.error('Error al eliminar la cuenta:', error);
+    res.status(500).json({ 
+      message: 'Error al eliminar la cuenta.', 
+      error: error.message 
+    });
+  }
+}
+
 export {
   sanitizedUsuarioInput,
   findAll,
@@ -345,4 +394,5 @@ export {
   followCategoria,
   unfollowCategoria,
   getCategoriasSeguidas,
+  deleteAccount,
 };

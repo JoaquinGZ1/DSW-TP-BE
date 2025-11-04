@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Evento } from './evento.entity.js';
 import { orm } from '../shared/db/orm.js';
+import { validateEventContent } from '../shared/ai/contentModerator.js';
 
 const em = orm.em;
 
@@ -78,6 +79,19 @@ async function add(req: Request, res: Response) {
 
     // Los datos del evento (sin sanitización en este ejemplo, ajusta según necesidad)
     const eventoData = req.body;
+
+    // 🤖 MODERACIÓN DE CONTENIDO CON IA
+    // Validar el nombre y descripción del evento antes de crearlo
+    try {
+      await validateEventContent(eventoData.name, eventoData.description);
+    } catch (moderationError: any) {
+      return res.status(400).json({
+        success: false,
+        message: '🚫 No se puede crear el evento',
+        reason: 'Contenido inapropiado detectado',
+        details: moderationError.message,
+      });
+    }
 
     // Verifica si se subió un archivo de imagen
     if (req.file) {

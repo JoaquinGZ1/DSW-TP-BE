@@ -12,6 +12,7 @@ import {
   followCategoria,
   unfollowCategoria,
   getCategoriasSeguidas,
+  deleteAccount,
 } from './usuario.controller.js';
 
 export const usuarioRouter = Router();
@@ -28,3 +29,4 @@ usuarioRouter.get('/:id/entradas', findEntradasByUsuario);  // Aquí se obtiene 
 usuarioRouter.post('/:id/follow-categoria', followCategoria);  // Seguir una categoría
 usuarioRouter.post('/:id/unfollow-categoria', unfollowCategoria);  // Dejar de seguir una categoría
 usuarioRouter.get('/:id/categorias-seguidas', getCategoriasSeguidas);  // Obtener categorías seguidas
+usuarioRouter.post('/:id/delete-account', deleteAccount);  // Eliminar cuenta de usuario

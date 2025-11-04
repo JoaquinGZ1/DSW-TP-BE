@@ -9,6 +9,7 @@ import {
   login,
   register,
   findEventosByOrganizador,
+  deleteAccount,
 } from './organizador.controller.js';
 
 export const organizadorRouter = Router();
@@ -22,3 +23,4 @@ organizadorRouter.delete('/:id', remove);
 organizadorRouter.post('/login', login);
 organizadorRouter.post('/register', register);
 organizadorRouter.get('/:id/eventos', findEventosByOrganizador); // Nueva ruta para obtener eventos
+organizadorRouter.post('/:id/delete-account', deleteAccount);  // Eliminar cuenta de organizador

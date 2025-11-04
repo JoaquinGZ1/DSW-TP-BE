@@ -250,6 +250,54 @@ async function remove(req: Request, res: Response) {
   }
 }
 
+async function deleteAccount(req: Request, res: Response) {
+  try {
+    const id = Number.parseInt(req.params.id);
+    const { confirmacion } = req.body;
+
+    // Validar que se envió la confirmación
+    if (confirmacion !== 'ELIMINAR') {
+      return res.status(400).json({ 
+        message: 'Debe confirmar con la palabra "ELIMINAR" para eliminar la cuenta' 
+      });
+    }
+
+    // Buscar el organizador con sus eventos y entradas para obtener el conteo
+    const organizador = await em.findOne(
+      Organizador,
+      { id },
+      { populate: ['eventos', 'eventos.entradas'] }
+    );
+
+    if (!organizador) {
+      return res.status(404).json({ message: 'Organizador no encontrado' });
+    }
+
+    // Contar eventos y entradas antes de eliminar
+    const eventosCount = organizador.eventos.length;
+    let entradasCount = 0;
+    
+    organizador.eventos.getItems().forEach((evento: Evento) => {
+      entradasCount += evento.entradas.length;
+    });
+
+    // Eliminar el organizador (el cascade eliminará eventos y sus entradas automáticamente)
+    await em.removeAndFlush(organizador);
+
+    res.status(200).json({
+      message: 'Cuenta de organizador eliminada correctamente',
+      data: {
+        organizadorId: id,
+        eventosEliminados: eventosCount,
+        entradasEliminadas: entradasCount
+      }
+    });
+  } catch (error: any) {
+    console.error('Error al eliminar cuenta de organizador:', error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
 export {
   sanitizedOrganizadorInput,
   findAll,
@@ -260,4 +308,5 @@ export {
   login,
   register,
   findEventosByOrganizador,
+  deleteAccount,
 };

@@ -74,6 +74,9 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
+    console.log('📝 Datos recibidos para crear evento:', req.body);
+    console.log('📷 Archivo recibido:', req.file);
+    
     // Obtener un fork del EntityManager global
     const em = orm.em.fork();
 
@@ -85,6 +88,7 @@ async function add(req: Request, res: Response) {
     try {
       await validateEventContent(eventoData.name, eventoData.description);
     } catch (moderationError: any) {
+      console.error('❌ Error de moderación:', moderationError);
       return res.status(400).json({
         success: false,
         message: '🚫 No se puede crear el evento',
@@ -95,17 +99,22 @@ async function add(req: Request, res: Response) {
 
     // Verifica si se subió un archivo de imagen
     if (req.file) {
-    // Normaliza la ruta para sistemas Windows y elimina 'dist/' del inicio
-    eventoData.photo = req.file.path.replace(/\\/g, '/').replace('dist/', '');
+      console.log('✅ Procesando archivo:', req.file.path);
+      // Normaliza la ruta para sistemas Windows y elimina 'dist/' del inicio
+      eventoData.photo = req.file.path.replace(/\\/g, '/').replace('dist/', '');
+      console.log('✅ Ruta normalizada:', eventoData.photo);
     }
 
 
     // Crear el evento con los datos recibidos
+    console.log('🔨 Creando evento con datos:', eventoData);
     const evento = em.create(Evento, eventoData);
 
     // Persistir y hacer flush de los datos
+    console.log('💾 Guardando evento en base de datos...');
     await em.persistAndFlush(evento);
 
+    console.log('✅ Evento creado exitosamente:', evento.id);
     // Responder con el evento creado
     res.status(201).json({
       message: 'Evento creado con éxito',
@@ -113,9 +122,11 @@ async function add(req: Request, res: Response) {
     });
   } catch (error) {
     const err = error as any;
-    console.error('Error creando el evento:', err.message);
+    console.error('❌ Error creando el evento:', err);
+    console.error('❌ Stack trace:', err.stack);
     res.status(500).json({
       message: `Error al crear el evento: ${err.message}`,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 }

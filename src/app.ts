@@ -35,8 +35,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:4000',
   process.env.FRONTEND_URL,
-  'https://dsw-tp-fe.vercel.app', // Vercel URL directa como fallback
-].filter(Boolean); // Filtrar valores vacíos
+  'https://dsw-tp-fe.vercel.app', // Vercel URL principal
+].filter(Boolean);
 
 console.log('🔒 CORS Configuration:');
 console.log('   Allowed Origins:', allowedOrigins);
@@ -54,14 +54,21 @@ app.use(
         return callback(null, true);
       }
       
+      // Verificar si está en la lista de orígenes permitidos
       if (allowedOrigins.includes(origin)) {
-        console.log('✅ Origin allowed:', origin);
-        callback(null, true);
-      } else {
-        console.log('❌ Origin blocked:', origin);
-        console.log('   Allowed origins:', allowedOrigins);
-        callback(new Error(`CORS: Origin ${origin} not allowed`));
+        console.log('✅ Origin allowed (in list):', origin);
+        return callback(null, true);
       }
+      
+      // Permitir cualquier subdominio de vercel.app (para previews)
+      if (origin.endsWith('.vercel.app')) {
+        console.log('✅ Origin allowed (Vercel preview):', origin);
+        return callback(null, true);
+      }
+      
+      console.log('❌ Origin blocked:', origin);
+      console.log('   Allowed origins:', allowedOrigins);
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
     },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],

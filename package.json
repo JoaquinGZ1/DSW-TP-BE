@@ -1,14 +1,19 @@
 {
   "name": "dsw",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sistema de Gestión de Eventos - Backend API",
   "type": "module",
   "main": "app.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "scripts": {
+    "start": "node dist/app.js",
     "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
     "build": "tsc"
   },
-  "keywords": [],
+  "keywords": ["eventos", "api", "express", "typescript"],
   "author": "",
   "license": "ISC",
   "devDependencies": {

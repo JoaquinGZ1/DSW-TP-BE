@@ -5,12 +5,12 @@ import { MySqlDriver } from '@mikro-orm/mysql';
 export const orm = await MikroORM.init({
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
-  dbName: 'sge',
+  dbName: process.env.DB_NAME || 'sge',
   driver: MySqlDriver,
-  user: 'dsw',
-  password: 'dsw',
-  host: 'localhost',
-  port: 3306,
+  user: process.env.DB_USER || 'dsw',
+  password: process.env.DB_PASSWORD || 'dsw',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '3306'),
   highlighter: new SqlHighlighter(),
   debug: true,
   schemaGenerator: {

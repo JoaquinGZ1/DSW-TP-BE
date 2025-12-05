@@ -6,6 +6,7 @@ cmds = ["pnpm install"]
 
 [phases.build]
 cmds = ["pnpm run build"]
+cacheDirectories = []
 
 [start]
 cmd = "pnpm start"

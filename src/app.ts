@@ -97,11 +97,10 @@ app.use((_, res) => {
   return res.status(404).send({ message: 'Resource not found' });
 });
 
-// Solo sincronizar schema en desarrollo
-if (process.env.NODE_ENV !== 'production') {
-  await syncSchema();
-  console.log('Schema sincronizado (solo en desarrollo)');
-}
+// Sincronizar schema en todos los entornos
+// En producción usará updateSchema (crea tablas si no existen, sin borrar datos)
+await syncSchema();
+console.log('✅ Schema synchronized');
 
 // Puerto dinámico para servicios de hosting
 const PORT = process.env.PORT || 4000;

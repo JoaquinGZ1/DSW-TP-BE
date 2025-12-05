@@ -30,9 +30,14 @@ export const orm = await MikroORM.init({
 
 export const syncSchema = async () => {
   const generator = orm.getSchemaGenerator()
-  /*
-  await generator.dropSchema()
-  await generator.createSchema()
-  */
-  await generator.updateSchema()
+  
+  // In production (Railway), automatically create/update schema
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔨 Creating/updating database schema...');
+    await generator.updateSchema();
+    console.log('✅ Database schema ready');
+  } else {
+    // In development, use updateSchema
+    await generator.updateSchema();
+  }
 }

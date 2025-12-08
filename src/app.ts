@@ -97,8 +97,8 @@ app.use((_, res) => {
   return res.status(404).send({ message: 'Resource not found' });
 });
 
-// Sincronizar schema en todos los entornos
-// En producción usará updateSchema (crea tablas si no existen, sin borrar datos)
+// Inicializar ORM y sincronizar schema
+await orm.connect();
 await syncSchema();
 console.log('✅ Schema synchronized');
 

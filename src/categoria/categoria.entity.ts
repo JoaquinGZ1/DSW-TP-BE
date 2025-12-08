@@ -1,13 +1,10 @@
-import { Entity, Property, OneToMany, Collection, Cascade, ManyToMany, PrimaryKey } from '@mikro-orm/core';
+import { Entity, Property, OneToMany, Collection, Cascade, ManyToMany } from '@mikro-orm/core';
 import { BaseEntity } from '../shared/db/baseEntity.entity.js';
 import { Evento } from '../evento/evento.entity.js';
 import { Usuario } from '../usuario/usuario.entity.js';
 
 @Entity()
 export class Categoria extends BaseEntity {
-    @PrimaryKey()
-    id!:number;
-
     @Property({ nullable: false, unique: true })
     name!: string;
     

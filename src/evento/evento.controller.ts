@@ -44,7 +44,7 @@ async function findAll(req: Request, res: Response) {
       {},
       { populate: ['entradas', 'tiposEntrada', 'usuarios', 'eventoCategoria', 'organizador'] }
     );
-    res.status(200).json({ message: 'found all events', data: eventos });
+    res.status(200).json({ message: 'found all eventos', data: eventos });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -117,6 +117,11 @@ async function add(req: Request, res: Response) {
     }
 
 
+    // Convertir la fecha ISO a formato MySQL DATETIME si es necesario
+    if (eventoData.date && typeof eventoData.date === 'string') {
+      eventoData.date = new Date(eventoData.date);
+    }
+
     // Crear el evento con los datos recibidos
     console.log('🔨 Creando evento con datos:', eventoData);
     const evento = em.create(Evento, eventoData);
@@ -128,7 +133,7 @@ async function add(req: Request, res: Response) {
     console.log('✅ Evento creado exitosamente:', evento.id);
     // Responder con el evento creado
     res.status(201).json({
-      message: 'Evento creado con éxito',
+      message: 'evento created',
       data: evento,
     });
   } catch (error) {

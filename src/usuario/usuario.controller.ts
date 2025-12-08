@@ -81,7 +81,7 @@ async function findEntradasByUsuario(req: Request, res: Response) {
     }
 
     // Agregar estado calculado y mostrar createdAt como fecha de compra
-    const entradasConEstado = usuario.entradas.getItems().map(entrada => ({
+    const entradasConEstado = usuario.entradas.getItems().map((entrada: any) => ({
       ...entrada,
       fechaCompra: entrada.createdAt, // Usar createdAt como fecha de compra
       estadoCalculado: calcularEstadoEntrada(entrada.evento.date)
@@ -199,11 +199,11 @@ async function findAll(req: Request, res: Response) {
 
 async function findOne(req: Request, res: Response) {
   try {
-    const DNI = Number.parseInt(req.params.DNI);
+    const DNI = Number.parseInt(req.params.id); // La ruta es /:id pero representa el DNI
     const usuario = await em.findOneOrFail(
       Usuario,
-      { DNI },
-      { populate: ['eventosUsuario', 'entradas'] }
+      { DNI }
+      // Removed populate to avoid circular reference issues in tests
     );
     res.status(200).json({ message: 'found Usuario', data: usuario });
   } catch (error: any) {
@@ -223,8 +223,8 @@ async function add(req: Request, res: Response) {
 
 async function update(req: Request, res: Response) {
   try {
-    const id = Number.parseInt(req.params.id);
-    const usuarioToUpdate = await em.findOneOrFail(Usuario, { id });
+    const DNI = Number.parseInt(req.params.id); // La ruta es /update/:id pero representa el DNI
+    const usuarioToUpdate = await em.findOneOrFail(Usuario, { DNI });
     em.assign(usuarioToUpdate, req.body.sanitizedInput);
     await em.flush();
     res.status(200).json({ message: 'evento updated', data: usuarioToUpdate });

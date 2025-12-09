@@ -223,12 +223,21 @@ async function add(req: Request, res: Response) {
 
 async function update(req: Request, res: Response) {
   try {
-    const DNI = Number.parseInt(req.params.id); // La ruta es /update/:id pero representa el DNI
-    const usuarioToUpdate = await em.findOneOrFail(Usuario, { DNI });
+    const id = Number.parseInt(req.params.id); // El parámetro id es el ID de la base de datos
+    console.log('🔄 Actualizando usuario con ID:', id);
+    console.log('📝 Datos recibidos:', req.body);
+    console.log('✅ Datos sanitizados:', req.body.sanitizedInput);
+    
+    const usuarioToUpdate = await em.findOneOrFail(Usuario, { id });
+    console.log('👤 Usuario encontrado:', usuarioToUpdate.nickname);
+    
     em.assign(usuarioToUpdate, req.body.sanitizedInput);
     await em.flush();
-    res.status(200).json({ message: 'evento updated', data: usuarioToUpdate });
+    
+    console.log('✅ Usuario actualizado exitosamente');
+    res.status(200).json({ message: 'usuario updated', data: usuarioToUpdate });
   } catch (error: any) {
+    console.error('❌ Error al actualizar usuario:', error);
     res.status(500).json({ message: error.message });
   }
 }

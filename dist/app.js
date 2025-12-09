@@ -76,11 +76,10 @@ app.use('/api/categorias', categoriaRouter);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' });
 });
-// Solo sincronizar schema en desarrollo
-if (process.env.NODE_ENV !== 'production') {
-    await syncSchema();
-    console.log('Schema sincronizado (solo en desarrollo)');
-}
+// Inicializar ORM y sincronizar schema
+await orm.connect();
+await syncSchema();
+console.log('✅ Schema synchronized');
 // Puerto dinámico para servicios de hosting
 const PORT = process.env.PORT || 4000;
 // Arrancar el servidor

@@ -51,7 +51,7 @@ async function findAll(req: Request, res: Response) {
     )
     
     // Agregar estado calculado a cada entrada
-    const entradasConEstado = entradas.map(entrada => ({
+    const entradasConEstado = entradas.map((entrada: any) => ({
       ...entrada,
       estadoCalculado: calcularEstadoEntrada(entrada.evento.date)
     }));
@@ -141,7 +141,7 @@ async function remove(req: Request, res: Response) {
     console.log('🔍 Intentando eliminar entrada con ID:', id)
     
     // Usar transacción para asegurar que la eliminación se complete
-    await em.transactional(async (em) => {
+    await em.transactional(async (em: any) => {
       // Verificar que la entrada existe antes de eliminarla
       const entrada = await em.findOneOrFail(Entrada, { id }, { populate: ['usuario', 'evento'] })
       console.log('📋 Entrada encontrada:', { id: entrada.id, evento: entrada.evento.name, usuario: entrada.usuario.nickname })

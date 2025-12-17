@@ -3,6 +3,7 @@ import { Usuario } from './usuario.entity.js';
 import { Categoria } from '../categoria/categoria.entity.js';
 import { orm } from '../shared/db/orm.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const em = orm.em;
 const SALT_ROUNDS = 10;
@@ -168,8 +169,26 @@ async function login(req: Request, res: Response) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
+    // Generar token JWT
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      console.error('❌ JWT_SECRET no está configurado');
+      return res.status(500).json({ message: 'Error de configuración del servidor' });
+    }
+
+    const token = jwt.sign(
+      {
+        id: usuario.id,
+        role: 'usuario',
+        mail: usuario.mail
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
     res.status(200).json({
       message: 'Login exitoso',
+      token,
       usuario: {
         DNI: usuario.DNI,
         nickname: usuario.nickname,

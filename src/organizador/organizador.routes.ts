@@ -11,16 +11,20 @@ import {
   findEventosByOrganizador,
   deleteAccount,
 } from './organizador.controller.js';
+import { authMiddleware, requireSelfOrRole } from '../middleware/auth.middleware.js';
 
 export const organizadorRouter = Router();
 
-organizadorRouter.get('/', findAll);
-organizadorRouter.get('/:id', findOne);
-organizadorRouter.post('/', sanitizedOrganizadorInput, add);
-organizadorRouter.put('/update/:id', sanitizedOrganizadorInput, update);
-// organizadorRouter.patch('/:id', sanitizedOrganizadorInput, update);
-organizadorRouter.delete('/:id', remove);
+// Rutas públicas (no requieren autenticación)
 organizadorRouter.post('/login', login);
 organizadorRouter.post('/register', register);
-organizadorRouter.get('/:id/eventos', findEventosByOrganizador); // Nueva ruta para obtener eventos
-organizadorRouter.post('/:id/delete-account', deleteAccount);  // Eliminar cuenta de organizador
+
+// Rutas protegidas (requieren autenticación)
+organizadorRouter.get('/', authMiddleware, findAll);
+organizadorRouter.get('/:id', authMiddleware, findOne);
+organizadorRouter.post('/', authMiddleware, sanitizedOrganizadorInput, add);
+organizadorRouter.put('/update/:id', authMiddleware, requireSelfOrRole([]), sanitizedOrganizadorInput, update);
+// organizadorRouter.patch('/:id', sanitizedOrganizadorInput, update);
+organizadorRouter.delete('/:id', authMiddleware, requireSelfOrRole([]), remove);
+organizadorRouter.get('/:id/eventos', authMiddleware, requireSelfOrRole([]), findEventosByOrganizador); // Nueva ruta para obtener eventos
+organizadorRouter.post('/:id/delete-account', authMiddleware, requireSelfOrRole([]), deleteAccount);  // Eliminar cuenta de organizador

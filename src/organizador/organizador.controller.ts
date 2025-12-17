@@ -96,8 +96,26 @@ async function login(req: Request, res: Response) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
+    // Generar token JWT
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      console.error('❌ JWT_SECRET no está configurado');
+      return res.status(500).json({ message: 'Error de configuración del servidor' });
+    }
+
+    const token = jwt.sign(
+      {
+        id: organizador.id,
+        role: 'organizador',
+        mail: organizador.mail
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
     res.status(200).json({
       message: 'Login exitoso',
+      token,
       organizador: {
         id: organizador.id,
         CUIT: organizador.CUIT,
